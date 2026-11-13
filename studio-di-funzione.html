@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Studio di funzione</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@500;600;700&display=swap">
+<style>
+/* Layout: colonna unica di lettura, schede in alto, una cosa alla volta. Testo grande e leggibile (font ad alta leggibilità). */
+:root{
+  --bg:#eef1fa; --surface:#ffffff; --surface-2:#f4f6fc; --fg:#1a1f3d; --muted:#4b5274; --line:#d5dbee;
+  --accent:#3d44c4; --accent-fg:#ffffff; --accent-soft:#e4e7fb;
+  --pos:#1d7548; --pos-soft:#e0f3e8; --neg:#b3362e; --neg-soft:#fbe6e3; --note:#7d5a00; --note-soft:#fff4d4;
+  --c1:#2f6bd2; --c2:#11867a; --c3:#b06600; --c4:#bd3f68; --c5:#6b4fc6;
+  --font-display:"Lexend", "Segoe UI", system-ui, sans-serif;
+  --font-body:"Atkinson Hyperlegible", "Verdana", "Segoe UI", system-ui, sans-serif;
+  --base:18px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12152a; --surface:#1b1f39; --surface-2:#22274a; --fg:#eceefb; --muted:#b2b7d6; --line:#353b66;
+  --accent:#8f96ff; --accent-fg:#12152a; --accent-soft:#2c3264;
+  --pos:#6fd39f; --pos-soft:#1a3a2c; --neg:#ff8b80; --neg-soft:#4a2224; --note:#f2c75c; --note-soft:#3b3218;
+  --c1:#7aa7ff; --c2:#4fd1c0; --c3:#f0a647; --c4:#f283a8; --c5:#ad97ff;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#12152a; --surface:#1b1f39; --surface-2:#22274a; --fg:#eceefb; --muted:#b2b7d6; --line:#353b66;
+  --accent:#8f96ff; --accent-fg:#12152a; --accent-soft:#2c3264;
+  --pos:#6fd39f; --pos-soft:#1a3a2c; --neg:#ff8b80; --neg-soft:#4a2224; --note:#f2c75c; --note-soft:#3b3218;
+  --c1:#7aa7ff; --c2:#4fd1c0; --c3:#f0a647; --c4:#f283a8; --c5:#ad97ff;
+  color-scheme:dark }
+
+html{font-size:var(--base);color-scheme:light}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:1rem;line-height:1.6;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:1.25rem 3rem}
+.wrap{max-width:46rem;margin:0 auto;display:flex;flex-direction:column;gap:1.1rem}
+h1,h2,h3{font-family:var(--font-display);line-height:1.25;text-wrap:balance;margin:0}
+h1{font-size:2rem;font-weight:700;color:var(--accent)}
+h2{font-size:1.4rem;font-weight:600}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0}
+b,strong{font-weight:700}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+header{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:flex-end;justify-content:space-between}
+header .sub{color:var(--muted);margin-top:.25rem}
+.tools{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap}
+.tools .lbl{color:var(--muted);font-size:.85rem;margin-right:.2rem}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:.45rem .85rem;font-weight:700;line-height:1.2}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.small{padding:.3rem .65rem;font-size:.85rem}
+.btn[disabled]{opacity:.45;cursor:default}
+
+nav.tabs{display:flex;flex-wrap:wrap;gap:.45rem}
+nav.tabs button{border:1.5px solid var(--line);background:var(--surface);color:var(--accent);border-radius:10px;padding:.5rem .95rem;font-weight:700;font-family:var(--font-display);font-size:.95rem}
+nav.tabs button:hover{background:var(--accent-soft)}
+nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;gap:1.4rem;min-width:0}
+.intro{color:var(--muted)}
+
+section.topic{display:flex;flex-direction:column;gap:.8rem}
+.topic-head{display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.box{background:var(--surface-2);border-left:4px solid var(--c, var(--accent));border-radius:8px;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.55rem}
+.box h3{color:var(--c, var(--accent))}
+.note{background:var(--note-soft);border-left:4px solid var(--note);border-radius:8px;padding:.8rem 1rem}
+.note b:first-child{color:var(--note)}
+ul.defs{margin:0;padding-left:1.2rem;display:flex;flex-direction:column;gap:.35rem}
+ol.steps{margin:0;padding-left:1.4rem;display:flex;flex-direction:column;gap:.45rem}
+.m{white-space:nowrap;font-variant-numeric:tabular-nums}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .15em;line-height:1.15;font-size:.95em}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .25em}
+.formula{font-size:1.2rem;font-weight:700;padding:.4rem 0}
+
+.figure{display:flex;justify-content:center;overflow-x:auto}
+.figure svg{max-width:100%;height:auto}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.duo>div{min-width:0;display:flex;flex-direction:column;gap:.5rem}
+@media (max-width:620px){.duo{grid-template-columns:1fr}}
+
+svg text{fill:var(--fg);font-family:var(--font-body)}
+svg .muted{fill:var(--muted)}
+svg .ax{stroke:var(--muted);stroke-width:1.5;fill:none}
+svg .curve{stroke:var(--accent);stroke-width:3;fill:none;stroke-linecap:round}
+svg .guide{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 4;fill:none}
+svg .dot{fill:var(--fg)}
+svg .setA{stroke:var(--c1);stroke-width:3;fill:none}
+svg .setB{stroke:var(--muted);stroke-width:2.5;fill:none}
+svg .setIm{stroke:var(--neg);stroke-width:3;fill:none}
+svg .arrow{stroke:var(--fg);stroke-width:1.6;fill:none}
+svg .ahead{fill:var(--fg)}
+svg .tA{fill:var(--c1);font-weight:700}
+svg .tIm{fill:var(--neg);font-weight:700}
+svg .sp{stroke:var(--pos);stroke-width:3.5}
+svg .sn{stroke:var(--neg);stroke-width:3.5;stroke-dasharray:9 7}
+svg .vline{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 4}
+svg .sgn-p{fill:var(--pos);font-weight:700;font-size:22px}
+svg .sgn-n{fill:var(--neg);font-weight:700;font-size:22px}
+svg .zero{fill:var(--surface);stroke:var(--fg);stroke-width:2}
+svg .nx{fill:var(--neg);font-weight:700;font-size:20px}
+svg .rowlab{font-weight:700;font-size:16px}
+svg .pt{font-weight:700;font-size:16px}
+svg .poly{stroke:var(--accent);stroke-width:2.5;fill:none;stroke-linecap:round}
+
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:.55rem .65rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--font-display);font-weight:600;color:var(--muted);font-size:.85rem;letter-spacing:.02em}
+td.mini svg{display:block}
+
+/* Esempi */
+.example{display:flex;flex-direction:column;gap:.9rem;border:1px solid var(--line);border-radius:12px;padding:1.1rem}
+.example .given{font-size:1.25rem;font-weight:700}
+.step{display:flex;flex-direction:column;gap:.45rem;padding:.9rem 1rem;border-radius:10px;background:var(--surface-2)}
+.step .n{font-family:var(--font-display);font-weight:600;color:var(--accent);font-size:.9rem;letter-spacing:.03em}
+.step .why{border-left:3px solid var(--c2);padding-left:.7rem;color:var(--fg)}
+.step .why b:first-child{color:var(--c2)}
+.row-btns{display:flex;gap:.5rem;flex-wrap:wrap}
+
+/* Domande */
+.chips{display:flex;gap:.4rem;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:.3rem .8rem;font-size:.9rem;font-weight:700}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.stats{display:flex;gap:.5rem;flex-wrap:wrap;font-size:.9rem}
+.stat{padding:.2rem .65rem;border-radius:8px;background:var(--surface-2);font-variant-numeric:tabular-nums}
+.stat.si{background:var(--pos-soft);color:var(--pos)}
+.stat.quasi{background:var(--note-soft);color:var(--note)}
+.stat.no{background:var(--neg-soft);color:var(--neg)}
+.card{border:2px solid var(--line);border-radius:14px;padding:1.4rem;display:flex;flex-direction:column;gap:1rem;background:var(--surface)}
+.card .meta{display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;color:var(--muted);font-size:.9rem}
+.card .q{font-family:var(--font-display);font-size:1.35rem;font-weight:600;line-height:1.35}
+.answer{display:flex;flex-direction:column;gap:.6rem;border-top:1px dashed var(--line);padding-top:1rem}
+.answer .short{font-size:1.1rem}
+.answer .plus{color:var(--muted)}
+.answer .plus b:first-child{color:var(--fg)}
+.self{display:flex;flex-direction:column;gap:.5rem}
+.self .row-btns .btn.si{border-color:var(--pos);color:var(--pos)}
+.self .row-btns .btn.quasi{border-color:var(--note);color:var(--note)}
+.self .row-btns .btn.no{border-color:var(--neg);color:var(--neg)}
+.bar{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar>span{display:block;height:100%;background:var(--accent);transition:width .3s}
+.tip{color:var(--muted);font-size:.95rem}
+
+/* Quiz */
+.opts{display:flex;flex-direction:column;gap:.55rem}
+.opt{display:flex;gap:.7rem;align-items:flex-start;text-align:left;width:100%;border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:.7rem .9rem;font-size:1.02rem}
+.opt:hover:not([disabled]){border-color:var(--accent);background:var(--accent-soft)}
+.opt .k{font-family:var(--font-display);font-weight:700;color:var(--muted);min-width:1.2rem}
+.opt[disabled]{cursor:default}
+.opt.right{border-color:var(--pos);background:var(--pos-soft)}
+.opt.wrong{border-color:var(--neg);background:var(--neg-soft)}
+.feedback{border-radius:10px;padding:.8rem 1rem}
+.feedback.ok{background:var(--pos-soft)}
+.feedback.ok b:first-child{color:var(--pos)}
+.feedback.ko{background:var(--neg-soft)}
+.feedback.ko b:first-child{color:var(--neg)}
+.score{font-family:var(--font-display);font-size:3rem;font-weight:700;color:var(--accent);line-height:1}
+
+/* Schema */
+.gloss{display:grid;grid-template-columns:auto 1fr;gap:.45rem 1rem;align-items:baseline}
+.gloss dt{font-weight:700;font-size:1.15rem;text-align:center;min-width:5.5rem;white-space:nowrap}
+.gloss dd{margin:0}
+.words{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.7rem}
+.word{background:var(--surface-2);border-radius:8px;padding:.7rem .9rem}
+.word b{display:block;font-family:var(--font-display);color:var(--accent)}
+
+@media (max-width:520px){
+  h1{font-size:1.6rem}
+  .panel{padding:1rem}
+  .card{padding:1.05rem}
+  .card .q{font-size:1.2rem}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Studio di funzione</h1>
+      <p class="sub">Ripasso per l'interrogazione: contano i concetti, non i calcoli.</p>
+    </div>
+    <div class="tools" aria-label="Dimensione del testo">
+      <span class="lbl">Testo</span>
+      <button class="btn small" id="fontDown" aria-label="Testo più piccolo">A−</button>
+      <button class="btn small" id="fontUp" aria-label="Testo più grande">A+</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="ripasso" aria-selected="true">Ripasso</button>
+    <button role="tab" data-tab="esempi" aria-selected="false">Esempi spiegati</button>
+    <button role="tab" data-tab="domande" aria-selected="false">Domande dell'interrogazione</button>
+    <button role="tab" data-tab="quiz" aria-selected="false">Quiz</button>
+    <button role="tab" data-tab="schema" aria-selected="false">Schema finale</button>
+  </nav>
+
+  <!-- ============ RIPASSO ============ -->
+  <main class="panel" id="p-ripasso" role="tabpanel">
+    <p class="intro">Leggi un argomento alla volta. Con il tasto <b>Ascolta</b> il computer legge il testo ad alta voce.</p>
+
+    <section class="topic" id="t1" style="--c:var(--c1)">
+      <div class="topic-head"><h2>1. Che cos'è una funzione</h2><button class="btn small speak" data-speak="#t1">Ascolta</button></div>
+      <div class="box">
+        <h3>La definizione</h3>
+        <p>Dati due insiemi A e B di numeri reali (non vuoti), una <b>funzione</b> <span class="m">f: A → B</span> (si legge «f da A a B») è una regola che associa a <b>ogni</b> numero di A <b>uno e un solo</b> numero di B.</p>
+      </div>
+      <div class="figure">
+        <svg viewBox="0 0 380 250" width="380" role="img" aria-label="Schema: l'insieme A è il dominio, l'insieme B è il codominio, dentro B il cerchio rosso è l'insieme immagine">
+          <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ahead"/></marker></defs>
+          <ellipse cx="85" cy="125" rx="55" ry="82" class="setA"/>
+          <ellipse cx="285" cy="125" rx="66" ry="92" class="setB"/>
+          <ellipse cx="282" cy="142" rx="36" ry="50" class="setIm"/>
+          <text x="22" y="52" font-size="20" font-weight="700">A</text>
+          <text x="345" y="52" font-size="20" font-weight="700">B</text>
+          <circle cx="85" cy="70" r="5" class="dot"/><circle cx="85" cy="105" r="5" class="dot"/><circle cx="85" cy="140" r="5" class="dot"/><circle cx="85" cy="180" r="5" class="dot"/>
+          <circle cx="285" cy="62" r="5" class="dot"/>
+          <circle cx="280" cy="115" r="5" class="dot"/><circle cx="280" cy="145" r="5" class="dot"/><circle cx="280" cy="175" r="5" class="dot"/>
+          <path d="M92,70 Q190,60 272,113" class="arrow" marker-end="url(#ah)"/>
+          <path d="M92,105 Q190,100 272,116" class="arrow" marker-end="url(#ah)"/>
+          <path d="M92,140 Q190,145 272,145" class="arrow" marker-end="url(#ah)"/>
+          <path d="M92,180 Q190,195 272,176" class="arrow" marker-end="url(#ah)"/>
+          <text x="60" y="146" font-size="16">x</text>
+          <text x="300" y="150" font-size="16">y</text>
+          <text x="48" y="236" class="tA" font-size="16">dominio</text>
+          <text x="250" y="22" font-size="16">codominio</text>
+          <text x="232" y="240" class="tIm" font-size="16">insieme immagine</text>
+        </svg>
+      </div>
+      <ul class="defs">
+        <li><b>x, variabile indipendente</b>: il numero che scegli liberamente (dentro il dominio) e metti nella funzione.</li>
+        <li><b>y, variabile dipendente</b>: il risultato che ottieni applicando la regola alla x.</li>
+        <li><b>Dominio</b> (o insieme di definizione, o campo di esistenza): tutti i valori di x che si possono usare.</li>
+        <li><b>Codominio</b>: l'insieme di arrivo teorico B, dove i risultati possono finire.</li>
+        <li><b>Insieme immagine</b>: i risultati y che si ottengono davvero. Sta dentro il codominio.</li>
+      </ul>
+      <div class="box" style="--c:var(--c2)">
+        <h3>Sul piano cartesiano</h3>
+        <ul class="defs">
+          <li><b>Dominio</b>: dove esiste la funzione sull'asse orizzontale x.</li>
+          <li><b>Insieme immagine</b>: dove arriva la funzione sull'asse verticale y.</li>
+          <li><b>Codominio</b>: tutto l'asse y, dovunque si trovi la curva.</li>
+        </ul>
+      </div>
+      <div class="note"><b>Attenzione.</b> Ogni x ha <b>un solo</b> risultato. Invece due x diverse possono avere lo stesso risultato: nel disegno, due frecce arrivano sulla stessa y.</div>
+    </section>
+
+    <section class="topic" id="t2" style="--c:var(--c3)">
+      <div class="topic-head"><h2>2. Le funzioni polinomiali</h2><button class="btn small speak" data-speak="#t2">Ascolta</button></div>
+      <p>Sono le funzioni in cui la x compare solo dentro un polinomio: <b>niente frazioni</b> con la x sotto e <b>niente radici</b>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Grado</th><th>Formula tipica</th><th>Nome</th><th>Grafico</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td class="m">y = c</td><td>costante</td><td>linea orizzontale</td><td class="mini"><svg viewBox="0 0 60 36" width="60" aria-hidden="true"><path d="M4,18 H56" class="poly"/></svg></td></tr>
+            <tr><td>1</td><td class="m">y = mx + q</td><td>lineare</td><td>retta obliqua</td><td class="mini"><svg viewBox="0 0 60 36" width="60" aria-hidden="true"><path d="M6,32 L54,4" class="poly"/></svg></td></tr>
+            <tr><td>2</td><td class="m">y = ax² + bx + c</td><td>quadratica</td><td>parabola</td><td class="mini"><svg viewBox="0 0 60 36" width="60" aria-hidden="true"><path d="M8,4 Q30,62 52,4" class="poly"/></svg></td></tr>
+            <tr><td>3</td><td class="m">y = ax³ + bx² + cx + d</td><td>cubica</td><td>curva a «S»</td><td class="mini"><svg viewBox="0 0 60 36" width="60" aria-hidden="true"><path d="M4,33 C18,2 42,34 56,3" class="poly"/></svg></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="box">
+        <h3>Regola del dominio</h3>
+        <p>Il dominio di una funzione polinomiale è <b>sempre tutto ℝ</b>: <span class="m">D = ℝ</span> oppure <span class="m">D = ]−∞; +∞[</span>.</p>
+        <p><b>Perché:</b> non ci sono frazioni né radici, quindi la x può fare qualsiasi operazione. Il grafico va da sinistra a destra senza mai interrompersi.</p>
+      </div>
+    </section>
+
+    <section class="topic" id="t3" style="--c:var(--c2)">
+      <div class="topic-head"><h2>3. Il segno di una funzione</h2><button class="btn small speak" data-speak="#t3">Ascolta</button></div>
+      <div class="box">
+        <h3>Che cosa vuol dire</h3>
+        <p>Studiare il segno significa capire <b>dove la funzione è positiva</b> (<span class="m">y &gt; 0</span>, il grafico sta sopra l'asse x) e <b>dove è negativa</b> (<span class="m">y &lt; 0</span>, il grafico sta sotto).</p>
+      </div>
+      <h3>I tre passi</h3>
+      <ol class="steps">
+        <li><b>Trovo gli zeri.</b> Pongo la funzione uguale a zero (equazione associata). Gli zeri sono i punti in cui il grafico tocca l'asse x.</li>
+        <li><b>Studio ogni fattore.</b> La funzione è scomposta in fattori; pongo ogni fattore <span class="m">&gt; 0</span>.</li>
+        <li><b>Faccio la tabella dei segni.</b> Metto i valori trovati su una retta e applico la regola dei segni, colonna per colonna.</li>
+      </ol>
+      <div class="note"><b>Regola dei segni.</b> Segni uguali danno <b>+</b>, segni diversi danno <b>−</b>. Nella tabella: <b>linea continua = +</b>, <b>linea tratteggiata = −</b>.</div>
+      <p>Esempio con <span class="m">y = x² − 4x = x(x − 4)</span>:</p>
+      <div class="figure" id="chart-r1"></div>
+    </section>
+
+    <section class="topic" id="t4" style="--c:var(--c4)">
+      <div class="topic-head"><h2>4. Le funzioni razionali fratte</h2><button class="btn small speak" data-speak="#t4">Ascolta</button></div>
+      <p>Sono funzioni con la x <b>al denominatore</b>, come <span class="m">y = <span class="frac"><span>x − 2</span><span>x + 1</span></span></span>.</p>
+      <div class="box">
+        <h3>Dominio: il denominatore non può essere zero</h3>
+        <p>Non si può dividere per zero, quindi escludo i valori di x che annullano il denominatore.</p>
+        <p class="m">x + 1 ≠ 0 ⟹ x ≠ −1</p>
+        <p><span class="m">D = ℝ \ {−1}</span> oppure <span class="m">D = ]−∞; −1[ ∪ ]−1; +∞[</span></p>
+        <p><b>Significato:</b> in <span class="m">x = −1</span> c'è un «muro verticale», l'<b>asintoto</b>. Il grafico non lo tocca e non lo attraversa mai.</p>
+      </div>
+      <div class="box" style="--c:var(--c2)">
+        <h3>Segno: numeratore e denominatore</h3>
+        <p>Pongo <b>sia il numeratore sia il denominatore</b> maggiori di zero:</p>
+        <p class="m">N: x − 2 &gt; 0 ⟹ x &gt; 2</p>
+        <p class="m">D: x + 1 &gt; 0 ⟹ x &gt; −1</p>
+        <p>Nella tabella, sul valore escluso (<span class="m">−1</span>) metto una <b>croce X</b> oppure <b>∄</b> («non esiste»), perché quel punto non fa parte del dominio.</p>
+      </div>
+      <div class="figure" id="chart-r2"></div>
+      <div class="note"><b>Zero o punto escluso?</b> Se si annulla il <b>numeratore</b>, la funzione vale 0 e tocca l'asse x (pallino). Se si annulla il <b>denominatore</b>, la funzione lì non esiste (croce o ∄).</div>
+    </section>
+
+    <section class="topic" id="t5" style="--c:var(--c5)">
+      <div class="topic-head"><h2>5. Funzioni crescenti e decrescenti</h2><button class="btn small speak" data-speak="#t5">Ascolta</button></div>
+      <div class="duo">
+        <div class="box" style="--c:var(--pos)">
+          <h3>Crescente: sale</h3>
+          <p>Leggendo il grafico da sinistra a destra, la linea <b>va verso l'alto</b>. Se la x aumenta, aumenta anche la y.</p>
+          <p class="m"><b>x₁ &lt; x₂ ⟹ f(x₁) &lt; f(x₂)</b></p>
+          <div class="figure" id="g-up"></div>
+        </div>
+        <div class="box" style="--c:var(--neg)">
+          <h3>Decrescente: scende</h3>
+          <p>Leggendo il grafico da sinistra a destra, la linea <b>va verso il basso</b>. Se la x aumenta, la y diminuisce.</p>
+          <p class="m"><b>x₁ &lt; x₂ ⟹ f(x₁) &gt; f(x₂)</b></p>
+          <div class="figure" id="g-down"></div>
+        </div>
+      </div>
+      <p class="tip">I grafici servono a capire il concetto: non devi saperli disegnare.</p>
+    </section>
+  </main>
+
+  <!-- ============ ESEMPI ============ -->
+  <main class="panel" id="p-esempi" role="tabpanel" hidden>
+    <p class="intro">Due esercizi del documento, un passo alla volta. Per ogni passo c'è <b>cosa si fa</b> e <b>perché</b>: all'interrogazione il perché vale più del conto.</p>
+    <div id="examples"></div>
+  </main>
+
+  <!-- ============ DOMANDE ============ -->
+  <main class="panel" id="p-domande" role="tabpanel" hidden>
+    <p class="tip">Leggi la domanda e <b>prova a rispondere a voce</b>, come se fossi all'interrogazione. Poi guarda la risposta e dì onestamente come è andata.</p>
+    <div class="chips" id="topicChips" aria-label="Argomento"></div>
+    <div class="row-btns">
+      <button class="chip" id="onlyReview" aria-pressed="false">Solo quelle da ripassare</button>
+      <button class="chip" id="shuffleQ" aria-pressed="false">In ordine sparso</button>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div id="cardArea"></div>
+  </main>
+
+  <!-- ============ QUIZ ============ -->
+  <main class="panel" id="p-quiz" role="tabpanel" hidden>
+    <div id="quizArea"></div>
+  </main>
+
+  <!-- ============ SCHEMA ============ -->
+  <main class="panel" id="p-schema" role="tabpanel" hidden>
+    <section class="topic">
+      <h2>Polinomiale o fratta?</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Polinomiale</th><th>Razionale fratta</th></tr></thead>
+          <tbody>
+            <tr><th>Come la riconosco</th><td>Nessuna frazione con la x sotto, nessuna radice</td><td>C'è la x al denominatore</td></tr>
+            <tr><th>Dominio</th><td>Sempre <span class="m">ℝ</span></td><td><span class="m">ℝ</span> tranne i valori che annullano il denominatore</td></tr>
+            <tr><th>Per il segno pongo</th><td>Ogni fattore <span class="m">&gt; 0</span></td><td><span class="m">N &gt; 0</span> e <span class="m">D &gt; 0</span></td></tr>
+            <tr><th>Nella tabella</th><td>0 (pallino) sugli zeri</td><td>0 sugli zeri del numeratore, X o ∄ sui punti esclusi</td></tr>
+            <tr><th>Il grafico</th><td>Non si interrompe mai</td><td>Si spezza dove c'è l'asintoto verticale</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section class="topic">
+      <h2>Come si leggono i simboli</h2>
+      <dl class="gloss">
+        <dt>f: A → B</dt><dd>«f da A a B»</dd>
+        <dt>f(x)</dt><dd>«f di x», il risultato della funzione per quella x</dd>
+        <dt>ℝ</dt><dd>l'insieme dei numeri reali</dd>
+        <dt>≠</dt><dd>«diverso da»</dd>
+        <dt>⟹</dt><dd>«allora», «implica»</dd>
+        <dt>∄</dt><dd>«non esiste»</dd>
+        <dt>ℝ \ {−1}</dt><dd>«tutti i reali tranne −1»</dd>
+        <dt>∪</dt><dd>«unione»: si legge come «oppure»</dd>
+        <dt>]a; b[</dt><dd>gli estremi a e b sono esclusi (parentesi rivolte verso l'esterno)</dd>
+        <dt>∞</dt><dd>«infinito»</dd>
+      </dl>
+    </section>
+    <section class="topic">
+      <h2>Le parole da saper spiegare</h2>
+      <div class="words">
+        <div class="word"><b>Funzione</b>a ogni x associa uno e un solo y</div>
+        <div class="word"><b>Dominio</b>le x che posso usare (asse x)</div>
+        <div class="word"><b>Codominio</b>l'arrivo teorico (tutto l'asse y)</div>
+        <div class="word"><b>Insieme immagine</b>i risultati veri (la parte di asse y raggiunta)</div>
+        <div class="word"><b>Zero</b>dove y = 0: il grafico tocca l'asse x</div>
+        <div class="word"><b>Segno</b>dove la funzione è sopra (+) o sotto (−) l'asse x</div>
+        <div class="word"><b>Asintoto verticale</b>il «muro» dove la fratta non esiste</div>
+        <div class="word"><b>Crescente / decrescente</b>da sinistra a destra il grafico sale / scende</div>
+      </div>
+    </section>
+    <section class="topic">
+      <h2>Il segno in tre passi</h2>
+      <ol class="steps">
+        <li>Zeri: pongo la funzione = 0.</li>
+        <li>Ogni fattore (o N e D) &gt; 0.</li>
+        <li>Tabella dei segni: uguali danno +, diversi danno −. Continua = +, tratteggiata = −.</li>
+      </ol>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const el=(tag,attrs={},html)=>{const e=document.createElement(tag);for(const k in attrs){if(k==='class')e.className=attrs[k];else e.setAttribute(k,attrs[k]);}if(html!==undefined)e.innerHTML=html;return e;};
+const load=(k,d)=>{try{const v=localStorage.getItem('sdf-'+k);return v===null?d:JSON.parse(v);}catch(e){return d;}};
+const save=(k,v)=>{try{localStorage.setItem('sdf-'+k,JSON.stringify(v));}catch(e){}};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+/* ---------- dimensione testo ---------- */
+const sizes=[16,18,20,22,24];
+let si=load('size',1); if(!(si>=0&&si<sizes.length)) si=1;
+const applySize=()=>{document.documentElement.style.setProperty('--base',sizes[si]+'px');$('#fontDown').disabled=si===0;$('#fontUp').disabled=si===sizes.length-1;save('size',si);};
+$('#fontDown').onclick=()=>{if(si>0){si--;applySize();}};
+$('#fontUp').onclick=()=>{if(si<sizes.length-1){si++;applySize();}};
+applySize();
+
+/* ---------- lettura ad alta voce ---------- */
+const canSpeak=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
+function spoken(html){
+  const d=document.createElement('div');d.innerHTML=html;let t=d.textContent||'';
+  return t.replace(/f:\s*A\s*→\s*B/g,' f da A a B ')
+    .replace(/x₁/g,' x uno ').replace(/x₂/g,' x due ')
+    .replace(/≠/g,' diverso da ').replace(/⟹/g,', allora, ').replace(/→/g,' a ')
+    .replace(/∄/g,' non esiste ').replace(/∪/g,' unione ').replace(/ℝ\s*\\\s*/g,' erre tranne ').replace(/ℝ/g,' erre ')
+    .replace(/−∞/g,' meno infinito ').replace(/\+∞/g,' più infinito ').replace(/∞/g,' infinito ')
+    .replace(/²/g,' al quadrato ').replace(/³/g,' alla terza ')
+    .replace(/>/g,' maggiore di ').replace(/</g,' minore di ').replace(/−/g,' meno ').replace(/=/g,' uguale ')
+    .replace(/\s+/g,' ').trim();
+}
+let itVoice=null;
+function pickVoice(){try{const v=speechSynthesis.getVoices();itVoice=v.find(x=>/^it/i.test(x.lang))||null;}catch(e){}}
+if(canSpeak){pickVoice();try{speechSynthesis.onvoiceschanged=pickVoice;}catch(e){}}
+function speak(html){
+  if(!canSpeak) return;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(spoken(html));u.lang='it-IT';u.rate=.95;if(itVoice)u.voice=itVoice;speechSynthesis.speak(u);}catch(e){}
+}
+function speakBtn(getHtml,label='Ascolta'){
+  const b=el('button',{class:'btn small'},label);
+  if(!canSpeak){b.hidden=true;return b;}
+  b.onclick=()=>speak(getHtml());return b;
+}
+document.querySelectorAll('.speak').forEach(b=>{
+  if(!canSpeak){b.hidden=true;return;}
+  b.onclick=()=>{const s=document.querySelector(b.dataset.speak);const c=s.cloneNode(true);c.querySelectorAll('svg,button,.table-wrap').forEach(n=>n.remove());speak(c.innerHTML);};
+});
+
+/* ---------- tabella dei segni (SVG) ---------- */
+function signChart(cfg){
+  const L=150,colW=125,n=cfg.points.length,W=L+colW*(n+1)+10,rowH=64,top=34,H=top+rowH*cfg.rows.length+8;
+  const px=i=>L+colW*(i+1);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" role="img" aria-label="${cfg.label}">`;
+  cfg.points.forEach((p,i)=>{s+=`<text x="${px(i)}" y="20" text-anchor="middle" class="pt">${p}</text><line x1="${px(i)}" y1="28" x2="${px(i)}" y2="${H-4}" class="vline"/>`;});
+  cfg.rows.forEach((r,ri)=>{
+    const y=top+ri*rowH+42;
+    s+=`<text x="6" y="${y+5}" class="rowlab">${r.label}</text>`;
+    for(let j=0;j<=n;j++){
+      const x1=j===0?L:px(j-1),x2=j===n?W-10:px(j),sg=r.signs[j];
+      s+=`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="${sg==='+'?'sp':'sn'}"/>`;
+      s+=`<text x="${(x1+x2)/2}" y="${y-14}" text-anchor="middle" class="${sg==='+'?'sgn-p':'sgn-n'}">${sg==='+'?'+':'−'}</text>`;
+    }
+    (r.marks||[]).forEach((m,i)=>{
+      if(m==='0') s+=`<circle cx="${px(i)}" cy="${y}" r="7" class="zero"/><text x="${px(i)+10}" y="${y+22}" font-size="14">0</text>`;
+      if(m==='x') s+=`<rect x="${px(i)-11}" y="${y-12}" width="22" height="24" fill="var(--surface)"/><text x="${px(i)}" y="${y+7}" text-anchor="middle" class="nx">∄</text>`;
+    });
+  });
+  return s+'</svg>';
+}
+const chart1={label:'Tabella dei segni di x per (x meno 4)',points:['0','4'],rows:[
+  {label:'x',signs:['-','+','+'],marks:['0','']},
+  {label:'x − 4',signs:['-','-','+'],marks:['','0']},
+  {label:'Segno di y',signs:['+','-','+'],marks:['0','0']}]};
+const chart2={label:'Tabella dei segni di (x meno 2) fratto (x più 1)',points:['−1','2'],rows:[
+  {label:'N: x − 2',signs:['-','-','+'],marks:['','0']},
+  {label:'D: x + 1',signs:['-','+','+'],marks:['x','']},
+  {label:'Segno di y',signs:['+','-','+'],marks:['x','0']}]};
+$('#chart-r1').innerHTML=signChart(chart1);
+$('#chart-r2').innerHTML=signChart(chart2);
+
+/* ---------- grafici crescente / decrescente ---------- */
+function monoGraph(up){
+  const P=up?[[40,135],[95,128],[140,80],[210,22]]:[[40,22],[95,29],[140,77],[210,135]];
+  const p=`M${P[0]} C${P[1]} ${P[2]} ${P[3]}`;
+  const bz=t=>[0,1].map(c=>{const u=1-t;return u*u*u*P[0][c]+3*u*u*t*P[1][c]+3*u*t*t*P[2][c]+t*t*t*P[3][c];});
+  const [x1,y1]=bz(.3).map(Math.round),[x2,y2]=bz(.75).map(Math.round);
+  return `<svg viewBox="0 0 230 175" width="230" role="img" aria-label="Grafico di una funzione ${up?'crescente':'decrescente'}">
+  <path d="M30,150 H222 M34,160 V8" class="ax"/>
+  <path d="${p}" class="curve"/>
+  <line x1="${x1}" y1="150" x2="${x1}" y2="${y1}" class="guide"/><line x1="34" y1="${y1}" x2="${x1}" y2="${y1}" class="guide"/>
+  <line x1="${x2}" y1="150" x2="${x2}" y2="${y2}" class="guide"/><line x1="34" y1="${y2}" x2="${x2}" y2="${y2}" class="guide"/>
+  <circle cx="${x1}" cy="${y1}" r="4.5" class="dot"/><circle cx="${x2}" cy="${y2}" r="4.5" class="dot"/>
+  <text x="${x1}" y="168" font-size="13" text-anchor="middle">x₁</text><text x="${x2}" y="168" font-size="13" text-anchor="middle">x₂</text>
+  <text x="30" y="${y1+4}" font-size="11" text-anchor="end" class="muted">f(x₁)</text><text x="30" y="${y2+4}" font-size="11" text-anchor="end" class="muted">f(x₂)</text>
+  </svg>`;
+}
+$('#g-up').innerHTML=monoGraph(true);
+$('#g-down').innerHTML=monoGraph(false);
+
+/* ---------- ESEMPI ---------- */
+const F=(n,d)=>`<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const examples=[
+ {title:'Esempio 1: una funzione polinomiale',given:'y = x² − 4x',goal:'Trovare dominio e segno.',steps:[
+  {t:'Riconosco il tipo di funzione',what:'È una funzione <b>polinomiale</b> di grado 2: non ci sono frazioni con la x sotto e non ci sono radici.',why:'Il tipo di funzione mi dice subito come trovare il dominio.'},
+  {t:'Trovo il dominio',what:'<span class="m">D = ℝ</span>, cioè <span class="m">]−∞; +∞[</span>.',why:'In un polinomio la x può fare qualsiasi operazione. Il grafico (una parabola) va da sinistra a destra senza interrompersi.'},
+  {t:'Imposto lo studio del segno',what:'<span class="m">x² − 4x &gt; 0</span>',why:'Per convenzione cerco dove la funzione è <b>positiva</b>. Dove non lo è, sarà negativa o zero.'},
+  {t:'Scompongo in fattori',what:'Raccolgo la x: <span class="m">x(x − 4) &gt; 0</span>. I fattori sono due: <span class="m">x</span> e <span class="m">(x − 4)</span>.',why:'Con i fattori separati posso studiare il segno di ciascuno e poi metterli insieme con la regola dei segni.'},
+  {t:'Pongo ogni fattore maggiore di zero',what:'Fattore 1: <span class="m">x &gt; 0</span><br>Fattore 2: <span class="m">x − 4 &gt; 0 ⟹ x &gt; 4</span>',why:'Così so dove ogni fattore è positivo. Nel resto della retta è negativo.'},
+  {t:'Faccio la tabella dei segni',what:'Metto 0 e 4 sulla retta. In ogni colonna moltiplico i segni.',why:'Segni uguali danno +, segni diversi danno −. L\'ultima riga è il segno della funzione.',chart:chart1},
+  {t:'Leggo il risultato',what:'Positiva (<span class="m">y &gt; 0</span>) per <span class="m">x &lt; 0</span> oppure <span class="m">x &gt; 4</span>.<br>Negativa (<span class="m">y &lt; 0</span>) per <span class="m">0 &lt; x &lt; 4</span>.<br>Vale zero in <span class="m">x = 0</span> e <span class="m">x = 4</span>.',why:'Gli zeri sono i punti in cui il grafico tocca l\'asse x. Dove è positiva il grafico sta sopra l\'asse x, dove è negativa sta sotto.'}
+ ]},
+ {title:'Esempio 2: una funzione razionale fratta',given:'y = '+F('x − 2','x + 1'),goal:'Trovare dominio e segno.',steps:[
+  {t:'Riconosco il tipo di funzione',what:'È una funzione <b>razionale fratta</b>: c\'è la x al denominatore.',why:'Con una frazione devo stare attento al denominatore.'},
+  {t:'Trovo il dominio',what:'<span class="m">x + 1 ≠ 0 ⟹ x ≠ −1</span><br><span class="m">D = ℝ \\ {−1}</span> oppure <span class="m">]−∞; −1[ ∪ ]−1; +∞[</span>',why:'Non si può dividere per zero, quindi escludo il valore che annulla il denominatore.'},
+  {t:'Capisco cosa succede in x = −1',what:'Lì c\'è un «muro verticale», l\'<b>asintoto</b>.',why:'In x = −1 la funzione non esiste: il grafico si avvicina al muro ma non lo tocca e non lo attraversa.'},
+  {t:'Studio il segno di numeratore e denominatore',what:'N: <span class="m">x − 2 &gt; 0 ⟹ x &gt; 2</span><br>D: <span class="m">x + 1 &gt; 0 ⟹ x &gt; −1</span>',why:'Il segno di una frazione si trova come quello di un prodotto. Per il segno il denominatore si pone <b>&gt; 0</b>, non ≠ 0: qui mi interessa dove è positivo.'},
+  {t:'Faccio la tabella dei segni',what:'Metto −1 e 2 sulla retta. In −1 metto <b>∄</b> (o una X).',why:'−1 non fa parte del dominio. In 2 invece si annulla il numeratore: la funzione vale 0.',chart:chart2},
+  {t:'Leggo il risultato',what:'Positiva per <span class="m">x &lt; −1</span> oppure <span class="m">x &gt; 2</span>.<br>Negativa per <span class="m">−1 &lt; x &lt; 2</span>.<br>Vale zero in <span class="m">x = 2</span>; in <span class="m">x = −1</span> non esiste.',why:'Lo zero (x = 2) e il punto escluso (x = −1) sono due cose diverse: nel primo il grafico tocca l\'asse x, nel secondo c\'è il muro.'}
+ ]}
+];
+function renderExamples(){
+  const host=$('#examples');host.innerHTML='';
+  examples.forEach((ex,ei)=>{
+    const box=el('div',{class:'example'});
+    box.append(el('h2',{},ex.title));
+    box.append(el('p',{class:'given m'},ex.given));
+    box.append(el('p',{},ex.goal));
+    const list=el('div',{class:'steps-host'});list.style.display='flex';list.style.flexDirection='column';list.style.gap='.7rem';
+    box.append(list);
+    let shown=0;
+    const btns=el('div',{class:'row-btns'});
+    const next=el('button',{class:'btn primary'},'Mostra il primo passo');
+    const all=el('button',{class:'btn'},'Mostra tutto');
+    const reset=el('button',{class:'btn'},'Ricomincia');reset.hidden=true;
+    const show=()=>{
+      const s=ex.steps[shown];
+      const st=el('div',{class:'step'});
+      st.append(el('div',{class:'n'},`PASSO ${shown+1} DI ${ex.steps.length}`));
+      st.append(el('h3',{},s.t));
+      st.append(el('p',{},s.what));
+      if(s.chart){const f=el('div',{class:'figure'});f.innerHTML=signChart(s.chart);st.append(f);}
+      st.append(el('p',{class:'why'},'<b>Perché.</b> '+s.why));
+      const sb=speakBtn(()=>s.t+'. '+s.what+'. Perché: '+s.why);sb.style.alignSelf='flex-start';st.append(sb);
+      list.append(st);shown++;
+      const done=shown>=ex.steps.length;
+      next.textContent=done?'Esercizio finito':'Passo successivo';next.disabled=done;all.hidden=done;reset.hidden=!done;
+    };
+    next.onclick=()=>{show();list.lastChild.scrollIntoView({block:'nearest',behavior:'smooth'});};
+    all.onclick=()=>{while(shown<ex.steps.length)show();};
+    reset.onclick=()=>{list.innerHTML='';shown=0;next.disabled=false;next.textContent='Mostra il primo passo';all.hidden=false;reset.hidden=true;};
+    btns.append(next,all,reset);box.append(btns);
+    host.append(box);
+  });
+}
+renderExamples();
+
+/* ---------- DOMANDE ---------- */
+const TOPICS=[['funzione','La funzione'],['polinomiali','Polinomiali'],['segno','Il segno'],['fratte','Fratte'],['crescenza','Crescente e decrescente']];
+const TL=Object.fromEntries(TOPICS);
+const Q=[
+ {t:'funzione',q:'Che cos\'è una funzione?',a:'È una regola che associa a <b>ogni</b> numero x di un insieme A <b>uno e un solo</b> numero y di un insieme B.',p:'Si scrive <span class="m">f: A → B</span> e si legge «f da A a B». A e B sono insiemi non vuoti di numeri reali.'},
+ {t:'funzione',q:'Cosa vuol dire «uno e un solo» nella definizione di funzione?',a:'Che ogni x ha esattamente un risultato y: non può averne due e non può restare senza.',p:'Due x diverse invece possono avere lo stesso y: va bene lo stesso.'},
+ {t:'funzione',q:'Che cos\'è la variabile indipendente?',a:'È la x: il valore che scelgo liberamente, dentro il dominio, e che metto nella funzione.',p:'Si chiama indipendente perché la decido io.'},
+ {t:'funzione',q:'Che cos\'è la variabile dipendente?',a:'È la y: il risultato che ottengo applicando la regola della funzione alla x.',p:'Si chiama dipendente perché cambia a seconda della x che ho scelto.'},
+ {t:'funzione',q:'Che cos\'è il dominio di una funzione?',a:'È l\'insieme dei valori di x che si possono usare nella funzione.',p:'Si chiama anche insieme di definizione o campo di esistenza.'},
+ {t:'funzione',q:'Che differenza c\'è tra codominio e insieme immagine?',a:'Il codominio è l\'insieme di arrivo <b>teorico</b> B. L\'insieme immagine contiene solo i risultati che si ottengono <b>davvero</b>.',p:'L\'insieme immagine sta dentro il codominio.'},
+ {t:'funzione',q:'Sul piano cartesiano, dove leggo il dominio?',a:'Sull\'asse orizzontale x: è la parte dell\'asse x dove la funzione esiste.',p:''},
+ {t:'funzione',q:'Sul piano cartesiano, dove leggo l\'insieme immagine? E il codominio?',a:'L\'insieme immagine è la parte dell\'asse verticale y raggiunta dal grafico. Il codominio è tutto l\'asse y.',p:'Il codominio non dipende da dove si trova la curva.'},
+ {t:'polinomiali',q:'Che cos\'è una funzione polinomiale? Fai qualche esempio.',a:'È una funzione in cui la x compare solo in un polinomio: niente frazioni con la x sotto, niente radici.',p:'Grado 0: <span class="m">y = c</span>, costante. Grado 1: <span class="m">y = mx + q</span>, lineare. Grado 2: <span class="m">y = ax² + bx + c</span>, quadratica. Grado 3: cubica.'},
+ {t:'polinomiali',q:'Qual è il dominio di una funzione polinomiale? Perché?',a:'È sempre tutto <span class="m">ℝ</span>, cioè <span class="m">]−∞; +∞[</span>.',p:'Non ci sono frazioni né radici, quindi la x può fare qualsiasi operazione. Il grafico non si interrompe mai.'},
+ {t:'polinomiali',q:'Che grafico ha una funzione di grado 0, come y = c?',a:'Una linea orizzontale: la y vale sempre lo stesso numero.',p:'Si chiama funzione costante.'},
+ {t:'polinomiali',q:'Che grafico hanno le funzioni di grado 1, 2 e 3?',a:'Grado 1: una retta obliqua. Grado 2: una parabola. Grado 3: una curva a forma di S.',p:''},
+ {t:'segno',q:'Che cosa significa studiare il segno di una funzione?',a:'Capire dove la funzione è positiva (<span class="m">y &gt; 0</span>) e dove è negativa (<span class="m">y &lt; 0</span>).',p:'Positiva vuol dire che il grafico sta sopra l\'asse x, negativa sotto.'},
+ {t:'segno',q:'Che cosa sono gli zeri di una funzione? Come si trovano?',a:'Sono i valori di x in cui la funzione vale zero: lì il grafico interseca l\'asse x.',p:'Si trovano con l\'equazione associata, cioè ponendo la funzione uguale a zero.'},
+ {t:'segno',q:'Quali sono i tre passi per studiare il segno?',a:'1. Trovo gli zeri con l\'equazione associata. 2. Pongo ogni fattore maggiore di zero. 3. Faccio la tabella dei segni e applico la regola dei segni.',p:''},
+ {t:'segno',q:'Perché la funzione deve essere scomposta in fattori prima di studiarne il segno?',a:'Per studiare il segno di ogni fattore da solo e poi metterli insieme con la regola dei segni.',p:'Se il grado è più alto di 2, negli esercizi la funzione è già scomposta.'},
+ {t:'segno',q:'Perché ogni fattore si pone maggiore di zero?',a:'È una convenzione: trovo dove ciascun fattore è positivo. Dove non è positivo, è negativo o vale zero.',p:''},
+ {t:'segno',q:'Come funziona la regola dei segni nella tabella?',a:'In ogni colonna moltiplico i segni: segni uguali danno +, segni diversi danno −.',p:'+ per + fa +, − per − fa +, + per − fa −. L\'ultima riga è il segno della funzione.'},
+ {t:'segno',q:'Nella tabella dei segni, cosa indicano la linea continua e quella tratteggiata?',a:'La linea continua indica il segno +, la tratteggiata il segno −.',p:''},
+ {t:'segno',q:'Nell\'esempio y = x² − 4x, come si legge il risultato?',a:'È positiva per <span class="m">x &lt; 0</span> oppure <span class="m">x &gt; 4</span>, negativa per <span class="m">0 &lt; x &lt; 4</span>, e vale zero in <span class="m">x = 0</span> e <span class="m">x = 4</span>.',p:'In 0 e in 4 il grafico tocca l\'asse x.'},
+ {t:'fratte',q:'Come si trova il dominio di una funzione razionale fratta?',a:'Il denominatore non può essere zero: escludo i valori di x che lo annullano.',p:'Esempio: in <span class="m">y = (x − 2)/(x + 1)</span> pongo <span class="m">x + 1 ≠ 0</span>, quindi <span class="m">x ≠ −1</span>.'},
+ {t:'fratte',q:'Perché il denominatore non può valere zero?',a:'Perché non si può dividere per zero: in quel punto la funzione non esiste.',p:''},
+ {t:'fratte',q:'Cosa succede al grafico nel valore di x escluso dal dominio?',a:'Lì c\'è un «muro verticale», l\'asintoto: il grafico non lo tocca e non lo attraversa.',p:''},
+ {t:'fratte',q:'Come si scrive D = ℝ \\ {−1} con gli intervalli?',a:'<span class="m">D = ]−∞; −1[ ∪ ]−1; +∞[</span>',p:'Il simbolo ∪ si legge «unione», cioè «oppure»: tutti i numeri prima di −1 e tutti quelli dopo. Le parentesi rivolte verso l\'esterno dicono che −1 è escluso.'},
+ {t:'fratte',q:'Per il segno di una fratta, cosa pongo maggiore di zero?',a:'Sia il numeratore sia il denominatore: <span class="m">N &gt; 0</span> e <span class="m">D &gt; 0</span>.',p:'Per il dominio il denominatore si pone ≠ 0; per il segno si pone &gt; 0.'},
+ {t:'fratte',q:'Nella tabella dei segni di una fratta, cosa metto nel valore escluso dal dominio?',a:'Una croce X oppure il simbolo ∄ («non esiste»).',p:'Perché quel punto non fa parte del dominio.'},
+ {t:'fratte',q:'Che differenza c\'è tra uno zero della funzione e un punto escluso dal dominio?',a:'Uno zero annulla il <b>numeratore</b>: la funzione vale 0 e il grafico tocca l\'asse x. Un punto escluso annulla il <b>denominatore</b>: lì la funzione non esiste.',p:'Nella tabella lo zero si segna con 0, il punto escluso con X o ∄.'},
+ {t:'fratte',q:'Nell\'esempio y = (x − 2)/(x + 1), dove è positiva la funzione?',a:'Per <span class="m">x &lt; −1</span> oppure <span class="m">x &gt; 2</span>. È negativa per <span class="m">−1 &lt; x &lt; 2</span>.',p:'Vale zero in x = 2. In x = −1 non esiste.'},
+ {t:'crescenza',q:'Quando una funzione si dice crescente?',a:'Quando, andando da sinistra verso destra, il grafico sale.',p:'In simboli: <span class="m">x₁ &lt; x₂ ⟹ f(x₁) &lt; f(x₂)</span>. Se la x aumenta, aumenta anche la y.'},
+ {t:'crescenza',q:'Quando una funzione si dice decrescente?',a:'Quando, andando da sinistra verso destra, il grafico scende.',p:'In simboli: <span class="m">x₁ &lt; x₂ ⟹ f(x₁) &gt; f(x₂)</span>. Se la x aumenta, la y diminuisce.'},
+ {t:'crescenza',q:'Come si legge «x₁ < x₂ ⟹ f(x₁) < f(x₂)»?',a:'«Se x₁ è minore di x₂, allora f di x₁ è minore di f di x₂.» È la definizione di funzione crescente.',p:'La freccia ⟹ si legge «allora».'},
+ {t:'crescenza',q:'Guardando un grafico, come capisci se la funzione è crescente o decrescente?',a:'Lo leggo da sinistra a destra, come una riga di testo: se la linea va verso l\'alto è crescente, se va verso il basso è decrescente.',p:'Non serve saper disegnare il grafico: basta saperlo leggere.'}
+];
+let marks=load('marks',{}); if(typeof marks!=='object'||!marks) marks={};
+let topic='tutte',onlyReview=false,shuffled=false,deck=[],pos=0,revealed=false,resetArmed=false;
+
+const chips=$('#topicChips');
+[['tutte','Tutte']].concat(TOPICS).forEach(([k,lab])=>{
+  const c=el('button',{class:'chip','data-k':k,'aria-pressed':String(k===topic)},lab);
+  c.onclick=()=>{topic=k;chips.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.k===k)));buildDeck();};
+  chips.append(c);
+});
+$('#onlyReview').onclick=e=>{onlyReview=!onlyReview;e.currentTarget.setAttribute('aria-pressed',String(onlyReview));buildDeck();};
+$('#shuffleQ').onclick=e=>{shuffled=!shuffled;e.currentTarget.setAttribute('aria-pressed',String(shuffled));buildDeck();};
+
+function buildDeck(){
+  let idx=Q.map((_,i)=>i).filter(i=>topic==='tutte'||Q[i].t===topic);
+  if(onlyReview) idx=idx.filter(i=>marks[i]!=='si');
+  deck=shuffled?shuffle(idx):idx;pos=0;revealed=false;renderCard();
+}
+function renderStats(){
+  const c={si:0,quasi:0,no:0};Q.forEach((_,i)=>{if(c[marks[i]]!==undefined)c[marks[i]]++;});
+  const mai=Q.length-c.si-c.quasi-c.no;
+  const s=$('#stats');s.innerHTML='';
+  s.append(el('span',{class:'stat si'},`La sapevo: ${c.si}`),el('span',{class:'stat quasi'},`Quasi: ${c.quasi}`),el('span',{class:'stat no'},`Da ripassare: ${c.no}`),el('span',{class:'stat'},`Non ancora fatte: ${mai}`));
+  const r=el('button',{class:'btn small'},resetArmed?'Sicuro? Clicca ancora':'Azzera');
+  r.onclick=()=>{if(!resetArmed){resetArmed=true;renderStats();return;}marks={};save('marks',marks);resetArmed=false;buildDeck();};
+  s.append(r);
+}
+function renderCard(){
+  renderStats();
+  const area=$('#cardArea');area.innerHTML='';
+  if(!deck.length){
+    area.append(el('div',{class:'card'},'<p class="q">Nessuna domanda da ripassare qui.</p><p>Hai segnato tutte queste domande come sapute. Togli il filtro «Solo quelle da ripassare» per rivederle.</p>'));return;
+  }
+  if(pos>=deck.length){
+    const c={si:0,quasi:0,no:0};deck.forEach(i=>{if(c[marks[i]]!==undefined)c[marks[i]]++;});
+    const card=el('div',{class:'card'});
+    card.append(el('p',{class:'q'},'Giro finito'));
+    card.append(el('p',{},`Su ${deck.length} domande: <b>${c.si}</b> sapute, <b>${c.quasi}</b> quasi, <b>${c.no}</b> da ripassare.`));
+    const rb=el('div',{class:'row-btns'});
+    if(c.quasi+c.no>0){const b=el('button',{class:'btn primary'},'Ripassa quelle non sapute');b.onclick=()=>{onlyReview=true;$('#onlyReview').setAttribute('aria-pressed','true');buildDeck();};rb.append(b);}
+    const again=el('button',{class:'btn'},'Ricomincia il giro');again.onclick=buildDeck;rb.append(again);
+    card.append(rb);area.append(card);return;
+  }
+  const i=deck[pos],d=Q[i];
+  const bar=el('div',{class:'bar'});bar.append(el('span'));bar.firstChild.style.width=(pos/deck.length*100)+'%';
+  area.append(bar);
+  const card=el('div',{class:'card'});
+  card.append(el('div',{class:'meta'},`<span>Domanda ${pos+1} di ${deck.length}</span><span>${TL[d.t]}</span>`));
+  card.append(el('p',{class:'q'},d.q));
+  const rb=el('div',{class:'row-btns'});
+  const sb=speakBtn(()=>revealed?d.q+'. '+d.a+' '+d.p:d.q);
+  if(!revealed){
+    const show=el('button',{class:'btn primary'},'Mostra la risposta');
+    show.onclick=()=>{revealed=true;renderCard();};
+    rb.append(show,sb);card.append(rb);
+  } else {
+    const ans=el('div',{class:'answer'});
+    ans.append(el('p',{class:'short'},'<b>Risposta.</b> '+d.a));
+    if(d.p) ans.append(el('p',{class:'plus'},'<b>Se vuoi aggiungere:</b> '+d.p));
+    card.append(ans);
+    const self=el('div',{class:'self'});
+    self.append(el('p',{},'Come è andata?'));
+    const sbs=el('div',{class:'row-btns'});
+    [['si','La sapevo'],['quasi','Quasi'],['no','Da ripassare']].forEach(([k,lab])=>{
+      const b=el('button',{class:'btn '+k},lab);
+      b.onclick=()=>{marks[i]=k;save('marks',marks);pos++;revealed=false;renderCard();};
+      sbs.append(b);
+    });
+    sbs.append(sb);
+    self.append(sbs);card.append(self);
+  }
+  area.append(card);
+}
+buildDeck();
+
+/* ---------- QUIZ ---------- */
+const SVG_DOWN=`<div class="figure"><svg viewBox="0 0 230 160" width="230" role="img" aria-label="Grafico"><path d="M20,140 H222 M24,150 V8" class="ax"/><path d="M30,24 C90,40 130,96 210,126" class="curve"/></svg></div>`;
+const SVG_UP=`<div class="figure"><svg viewBox="0 0 230 160" width="230" role="img" aria-label="Grafico"><path d="M20,140 H222 M24,150 V8" class="ax"/><path d="M30,128 C100,118 150,70 210,20" class="curve"/></svg></div>`;
+const QZ=[
+ {q:'In una funzione, a ogni x del dominio corrisponde:',o:['uno e un solo y','almeno due y','nessun y','un y oppure nessuno'],e:'È la definizione di funzione: un solo risultato per ogni x.'},
+ {q:'Il dominio di una funzione è:',o:['l\'insieme dei valori di x che si possono usare','l\'insieme dei risultati y ottenuti','tutto l\'asse y','l\'insieme degli zeri'],e:'I risultati ottenuti formano l\'insieme immagine; tutto l\'asse y è il codominio.'},
+ {q:'Che rapporto c\'è tra insieme immagine e codominio?',o:['L\'insieme immagine sta dentro il codominio','Sono sempre uguali','Il codominio sta dentro l\'insieme immagine','Non hanno niente in comune'],e:'Il codominio è l\'arrivo teorico; l\'immagine contiene solo i risultati che si ottengono davvero.'},
+ {q:'Qual è il dominio di y = 3x³ − x + 5?',o:['ℝ, tutti i numeri reali','ℝ \\ {0}','solo x > 0','prima bisogna fare i calcoli'],e:'È un polinomio: niente frazioni né radici, quindi il dominio è ℝ senza fare conti.'},
+ {q:'Gli zeri di una funzione sono i punti in cui il grafico:',o:['interseca l\'asse x','interseca l\'asse y','ha un asintoto','non esiste'],e:'Negli zeri y = 0, quindi il grafico sta proprio sull\'asse x.'},
+ {q:'Se in un intervallo y > 0, il grafico lì sta:',o:['sopra l\'asse x','sotto l\'asse x','sull\'asse y','da nessuna parte'],e:'y positiva vuol dire grafico sopra l\'asse x.'},
+ {q:'In una colonna della tabella dei segni, un fattore è − e l\'altro è −. Il segno di y è:',o:['+','−','0','non si può dire'],e:'Segni uguali danno +.'},
+ {q:'In una colonna della tabella dei segni, un fattore è + e l\'altro è −. Il segno di y è:',o:['−','+','0','∄'],e:'Segni diversi danno −.'},
+ {q:'Nella tabella dei segni, la linea tratteggiata indica:',o:['il segno −','il segno +','un asintoto','uno zero'],e:'Linea continua = +, linea tratteggiata = −.'},
+ {q:'Quale valore va escluso dal dominio di y = (x + 3)/(x − 5)?',o:['x = 5','x = −3','x = 0','nessuno'],e:'x = 5 annulla il denominatore. x = −3 annulla il numeratore: è uno zero e va benissimo.'},
+ {q:'Perché nelle funzioni fratte si escludono alcuni valori dal dominio?',o:['Perché non si può dividere per zero','Perché il numeratore non può valere zero','Perché la x non può essere negativa','Perché il grafico diventa una retta'],e:'Il denominatore non può essere zero.'},
+ {q:'Nel valore escluso dal dominio di una fratta, il grafico ha:',o:['un asintoto verticale, un «muro» che non attraversa','uno zero','un punto sull\'asse y','un tratto orizzontale'],e:'Lì la funzione non esiste: c\'è il muro verticale.'},
+ {q:'Nello studio del segno di una fratta, il denominatore si pone:',o:['> 0, come il numeratore','= 0','non si studia','< 0'],e:'Per il dominio si pone ≠ 0, ma per il segno serve sapere dove è positivo: D > 0.'},
+ {q:'Nella tabella dei segni di una fratta, sul punto escluso dal dominio si mette:',o:['una X oppure ∄','lo 0','un +','niente'],e:'Il punto non fa parte del dominio: la funzione lì non esiste.'},
+ {q:'Che differenza c\'è tra uno zero e un punto escluso dal dominio?',o:['Nello zero la funzione vale 0, nel punto escluso non esiste','Sono la stessa cosa','Nello zero la funzione non esiste','Il punto escluso è sempre x = 0'],e:'Lo zero annulla il numeratore, il punto escluso annulla il denominatore.'},
+ {q:'Come si scrive «tutti i numeri reali» con gli intervalli?',o:[']−∞; +∞[',']0; +∞[','ℝ \\ {0}','[−1; 1]'],e:'Da meno infinito a più infinito.'},
+ {q:'Una funzione è crescente se:',o:['x₁ < x₂ ⟹ f(x₁) < f(x₂)','x₁ < x₂ ⟹ f(x₁) > f(x₂)','f(x) = 0','il grafico è una linea orizzontale'],e:'Se la x aumenta, aumenta anche la y.'},
+ {q:'Il grafico qui sotto rappresenta una funzione:',img:SVG_DOWN,o:['decrescente','crescente','costante','che non è una funzione'],e:'Da sinistra a destra la linea scende.'},
+ {q:'Leggendo da sinistra a destra, questa funzione è:',img:SVG_UP,o:['crescente','decrescente','costante','fratta'],e:'Da sinistra a destra la linea sale.'},
+ {q:'Che grafico ha la funzione y = 5?',o:['una linea orizzontale','una parabola','una retta obliqua','una curva a S'],e:'È di grado 0: funzione costante, la y vale sempre 5.'},
+ {q:'La funzione y = x² − 4x è di grado 2. Il suo grafico è:',o:['una parabola','una retta obliqua','una linea orizzontale','una curva a S'],e:'Le funzioni di grado 2 (quadratiche) hanno per grafico una parabola.'}
+];
+const ROUND=10;
+let qz={list:[],i:0,score:0,wrong:[],answered:false,order:[]};
+function startQuiz(indices){
+  const pool=indices||shuffle(QZ.map((_,i)=>i)).slice(0,ROUND);
+  qz={list:pool,i:0,score:0,wrong:[],answered:false,order:[]};renderQuiz();
+}
+function renderQuiz(){
+  const area=$('#quizArea');area.innerHTML='';
+  if(qz.i>=qz.list.length){
+    const n=qz.list.length;
+    area.append(el('p',{class:'intro'},'Risultato'));
+    area.append(el('p',{class:'score'},`${qz.score} / ${n}`));
+    const msg=qz.score===n?'Tutte giuste.':qz.score>=n*.7?'Molto bene: ripassa solo le domande sbagliate.':qz.score>=n*.5?'Ci sei quasi. Rileggi il ripasso sugli argomenti sbagliati e riprova.':'Torna sul Ripasso e sulle Domande, poi riprova il quiz.';
+    area.append(el('p',{},msg));
+    const rb=el('div',{class:'row-btns'});
+    if(qz.wrong.length){const b=el('button',{class:'btn primary'},`Rifai le ${qz.wrong.length} sbagliate`);b.onclick=()=>startQuiz(shuffle(qz.wrong));rb.append(b);}
+    const b2=el('button',{class:qz.wrong.length?'btn':'btn primary'},'Nuovo quiz');b2.onclick=()=>startQuiz();rb.append(b2);
+    area.append(rb);return;
+  }
+  const d=QZ[qz.list[qz.i]];
+  if(!qz.answered) qz.order=shuffle(d.o.map((_,k)=>k));
+  const bar=el('div',{class:'bar'});bar.append(el('span'));bar.firstChild.style.width=(qz.i/qz.list.length*100)+'%';
+  area.append(bar);
+  const card=el('div',{class:'card'});
+  card.append(el('div',{class:'meta'},`<span>Domanda ${qz.i+1} di ${qz.list.length}</span><span>Giuste: ${qz.score}</span>`));
+  card.append(el('p',{class:'q'},d.q));
+  if(d.img){const f=el('div');f.innerHTML=d.img;card.append(f);}
+  const opts=el('div',{class:'opts'});
+  const letters='ABCD';
+  const fb=el('div');
+  qz.order.forEach((k,pi)=>{
+    const b=el('button',{class:'opt'},`<span class="k">${letters[pi]}</span><span>${d.o[k]}</span>`);
+    b.onclick=()=>{
+      if(qz.answered) return;
+      qz.answered=true;
+      const ok=k===0;
+      if(ok) qz.score++; else qz.wrong.push(qz.list[qz.i]);
+      opts.querySelectorAll('.opt').forEach((x,xi)=>{x.disabled=true;if(qz.order[xi]===0)x.classList.add('right');});
+      if(!ok) b.classList.add('wrong');
+      fb.className='feedback '+(ok?'ok':'ko');
+      fb.innerHTML=(ok?'<b>Giusto.</b> ':'<b>Non è questa.</b> La risposta giusta è «'+d.o[0]+'». ')+d.e;
+      const nx=el('button',{class:'btn primary'},qz.i+1<qz.list.length?'Domanda successiva':'Vedi il risultato');
+      nx.onclick=()=>{qz.i++;qz.answered=false;renderQuiz();};
+      next.innerHTML='';next.append(nx);nx.focus();
+      meta.querySelector('span:last-child').textContent='Giuste: '+qz.score;
+    };
+    opts.append(b);
+  });
+  const meta=card.querySelector('.meta');
+  card.append(opts,fb);
+  const next=el('div',{class:'row-btns'});
+  next.append(speakBtn(()=>d.q+' '+qz.order.map((k,pi)=>letters[pi]+': '+d.o[k]+'.').join(' ')));
+  card.append(next);
+  area.append(card);
+}
+startQuiz();
+
+/* ---------- schede ---------- */
+const tabs=[...document.querySelectorAll('nav.tabs button')];
+function showTab(name){
+  if(!tabs.some(t=>t.dataset.tab===name)) name='ripasso';
+  tabs.forEach(t=>t.setAttribute('aria-selected',String(t.dataset.tab===name)));
+  document.querySelectorAll('main.panel').forEach(p=>p.hidden=p.id!=='p-'+name);
+  try{if(canSpeak)speechSynthesis.cancel();}catch(e){}
+}
+tabs.forEach(t=>t.onclick=()=>{if(location.hash==='#'+t.dataset.tab)showTab(t.dataset.tab);else location.hash=t.dataset.tab;});
+window.addEventListener('hashchange',()=>showTab(location.hash.slice(1)));
+showTab(location.hash.slice(1));
+})();
+</script>
+</body>
+</html>
